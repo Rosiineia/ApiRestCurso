@@ -10,13 +10,22 @@ import java.util.Arrays;
 import org.junit.Test;
 
 import io.restassured.RestAssured;
+import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.builder.ResponseSpecBuilder;
+import io.restassured.filter.log.LogDetail;
 import io.restassured.http.Method;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.*;
+import io.restassured.specification.RequestSpecification;
+import io.restassured.specification.ResponseSpecification;
+
 import org.junit.Assert;
 import org.junit.BeforeClass;
 
 public class UserJasonTest {
+	
+	public static RequestSpecification reqSpec;
+	public static ResponseSpecification resSpec;
 	
 	// ***IMPORTANTE Antes de executar qlq teste essa calsse será executada 
 	
@@ -25,7 +34,16 @@ public class UserJasonTest {
 		RestAssured.baseURI = "https://restapi.wcaquino.me";
 		RestAssured.port = 443; //de acordo com o http portas 443 ou 80
 		RestAssured.basePath = "";//exemplo "/v2"
-		//RestAssured.authentication		
+		
+		//RestAssured.authentication
+		
+		RequestSpecBuilder reqBuilder = new RequestSpecBuilder();
+		reqBuilder.log(LogDetail.ALL);
+		reqSpec = reqBuilder.build();
+		
+		ResponseSpecBuilder resBuilder = new ResponseSpecBuilder();
+		resBuilder.expectStatusCode(200 );
+		resSpec = resBuilder.build();
 	}
 	
 	
@@ -33,12 +51,15 @@ public class UserJasonTest {
 	public void deveVerificarPrimeiroNivel() {
 		
 		
+		
 		given()
-			.log().all()// mostrar log
+			.spec(reqSpec)
+			//.log().all()// mostrar log
 		.when()
-			.get("/users/1")
+			.get("/users/1")			
 		.then()
-		.statusCode(200)
+		.spec(resSpec)
+		//.statusCode(200)
 		.body("id", is(1))//passo a informação e com o "is" eu verifico
 		.body("name", containsString("Silva"))
 		.body("age", greaterThan(18))//verifica se é maior que (greaterThan)
